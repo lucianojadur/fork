@@ -12,7 +12,7 @@ int
 main(int argc, char *argv[])
 {
 	char command[100];
-	char *file;
+	char *file = malloc(1);
 	size_t len = 0;
 	char *argv2[NARGS + 1];
 	int nread;
@@ -29,17 +29,17 @@ main(int argc, char *argv[])
 	argv2[0] = argv[0];
 
 	size_t i = 1;
-	while ((nread = getline(&file, &len, stdin)) != -1 && i < 5) {
-		char *file_cpy = malloc(nread);
+	while ((nread = getline(&file, &len, stdin)) != -1) {
+		char *file_cpy = malloc(strlen(file));  //"\0";
 		strncpy(file_cpy,
 		        file,
 		        (file[strlen(file) - 1] == '\n') ? strlen(file) - 1
 		                                         : strlen(file));
-		//	printf("file copy = --%s--\n", file_cpy);
+		// printf("file copy = --%s--\n", file_cpy);
 		argv2[i] = file_cpy;
 		i++;
 	}
-
+	free(file);
 	argv2[i] = NULL;
 
 	// for (size_t n = 0; n <= i; n++){
