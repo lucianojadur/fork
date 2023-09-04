@@ -25,9 +25,9 @@ main(int argc, char *argv[])
 
 	pid_t pid = fork();
 
-	if(pid > 0){
+	if (pid > 0) {
 		close(pipe_r[0]);
-		for (int i = 2; i <= max; i++){
+		for (int i = 2; i <= max; i++) {
 			if (write(pipe_r[1], &i, sizeof(int)) == -1) {
 				fprintf(stderr, "Error al escribir en el buffer pipe inicial\n");
 				return 1;
@@ -36,14 +36,12 @@ main(int argc, char *argv[])
 		close(pipe_r[1]);
 		printf("WR del proceso inicial cerrado\n");
 		wait(0);
-	}
-	else if (pid == 0){
+	} else if (pid == 0) {
 		close(pipe_r[1]);
 		if (!primes(pipe_r))
 			return 1;
 		close(pipe_r[0]);
-	}
-	else
+	} else
 		return 1;
 
 	return 0;
@@ -52,8 +50,8 @@ main(int argc, char *argv[])
 
 int
 primes(int pipe_l[2])
-{	
-	//printf("inicio lectura y filtro en proceso con PID = %d\n", getpid());
+{
+	// printf("inicio lectura y filtro en proceso con PID = %d\n", getpid());
 	close(pipe_l[1]);
 	int p = 0;
 	// leo el primer número del buffer, que es primo
@@ -75,31 +73,30 @@ primes(int pipe_l[2])
 		        p);
 		return 0;
 	}
-	
+
 	pid_t pid = fork();
 	if (pid > 0) {
 		close(pipe_r[0]);
 		int n = 0;
-		while ((status = read(pipe_l[0], &n, sizeof(int))) > 0){
-			if (n % p) { 
+		while ((status = read(pipe_l[0], &n, sizeof(int))) > 0) {
+			if (n % p) {
 				if (write(pipe_r[1], &n, sizeof(int)) == -1) {
 					fprintf(stderr, "Error al escribir en el pipe derecho del filtro %d", p);
 					return 0;
 				}
-	//			printf("escribo %d en el pipe derecho\n", n);
+				//			printf("escribo %d en el pipe derecho\n", n);
 			}
 		}
-		if (status == -1){
-			fprintf(stderr,
-				    "Error al leer el pipe izquierdo\n");
+		if (status == -1) {
+			fprintf(stderr, "Error al leer el pipe izquierdo\n");
 			close(pipe_l[0]);
 			close(pipe_r[1]);
 			return 0;
 		}
-	//	printf("llegué al EOF en proceso con PID = %d\n", getpid());
-		
-		close(pipe_l[0]);	// ya no leo
-		close(pipe_r[1]);	// ya no escribo
+		//	printf("llegué al EOF en proceso con PID = %d\n", getpid());
+
+		close(pipe_l[0]);  // ya no leo
+		close(pipe_r[1]);  // ya no escribo
 		wait(NULL);
 	} else if (pid == 0) {
 		close(pipe_r[1]);
