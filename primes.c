@@ -65,7 +65,7 @@ primes(int pipe_l[2])
 		exit(0);
 		return 0;
 	}
-	printf("primo: %d\n", p);
+	printf("primo %d\n", p);
 	//
 	// creo el pipe derecho
 	int pipe_r[2];
@@ -80,14 +80,8 @@ primes(int pipe_l[2])
 	if (pid > 0) {
 		close(pipe_r[0]);
 		int n = 0;
-		while ((status = read(pipe_l[0], &n, sizeof(int))) > 0){ //pipe_l[0] != EOF) {
-		/*	if (read(pipe_l[0], &n, sizeof(int)) == -1) {
-				fprintf(stderr,
-				        "Error al leer el pipe izquierdo\n");
-				return 0;
-			}
-			// printf("leyendo: %d\n", n);
-		*/	if (n % p) {  // si n no es divisible por p, viaja
+		while ((status = read(pipe_l[0], &n, sizeof(int))) > 0){
+			if (n % p) { 
 				if (write(pipe_r[1], &n, sizeof(int)) == -1) {
 					fprintf(stderr, "Error al escribir en el pipe derecho del filtro %d", p);
 					return 0;
@@ -104,8 +98,8 @@ primes(int pipe_l[2])
 		}
 	//	printf("llegué al EOF en proceso con PID = %d\n", getpid());
 		
-		close(pipe_l[0]);
-		close(pipe_r[1]);
+		close(pipe_l[0]);	// ya no leo
+		close(pipe_r[1]);	// ya no escribo
 		wait(NULL);
 	} else if (pid == 0) {
 		close(pipe_r[1]);
